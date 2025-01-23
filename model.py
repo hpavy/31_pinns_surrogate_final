@@ -16,7 +16,6 @@ def pde(
     t_mean,
     u_std,
     v_std,
-    w_0,
     L_adim,
     V_adim,
     ya0_mean,
@@ -113,7 +112,7 @@ def pde(
 class PINNs(nn.Module):
     def __init__(self, hyper_param):
         super().__init__()
-        self.init_layer = nn.ModuleList([nn.Linear(4, hyper_param["nb_neurons"])])
+        self.init_layer = nn.ModuleList([nn.Linear(5, hyper_param["nb_neurons"])])
         self.hiden_layers = nn.ModuleList(
             [
                 nn.Linear(hyper_param["nb_neurons"], hyper_param["nb_neurons"])

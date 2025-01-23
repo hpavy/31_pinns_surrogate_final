@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Le code se lance sur {device}")
 
 
-folder_result_name = "11_without_pde"  # name of the result folder
+folder_result_name = "1_piche"  # name of the result folder
 
 
 # On utilise hyper_param_init uniquement si c'est un nouveau modèle
@@ -15,24 +15,35 @@ hyper_param_init = {
     "H": [
         230.67,
         230.67,
-        230.67,
-        230.67,
-        230.67,
+        # 230.67,
+        # 230.67,
+        # 230.67,
+        # 261.39,
+        # 261.39,
+        # 261.39,
+        # 261.39,
+        # 261.39,
     ],  # la rigidité du ressort
     "ya0": [
         0.00125,
         0.00375,
-        0.00625,
-        0.00875,
-        0.01,
+        # 0.00625,
+        # 0.00875,
+        # 0.00125,
+        # 0.00375,
+        # 0.00625,
+        # 0.00875,
     ],  # la position initiale du ressort
     "m": 1.57,  # la masse du ressort
     "file": [
         "data_john_4_case_2.csv",
         "data_john_5_case_2.csv",
-        "data_john_7_case_2.csv",
-        "data_john_9_case_2.csv",
-        "data_john_1_case_2.csv",
+        # "data_john_7_case_2.csv",
+        # "data_john_9_case_2.csv",
+        # "data_john_4_case_1.csv",
+        # "data_john_5_case_1.csv",
+        # "data_john_7_case_1.csv",
+        # "data_john_9_case_1.csv",
     ],
     "nb_epoch": 1000,  # epoch number
     "save_rate": 20,  # rate to save

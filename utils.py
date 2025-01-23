@@ -124,7 +124,7 @@ def charge_data(hyper_param, param_adim):
         "w0_std": torch.cat([w0 for w0 in w0_full], dim=0).std(),
     }
 
-    X_full = torch.zeros((0, 4))
+    X_full = torch.zeros((0, 5))
     U_full = torch.zeros((0, 3))
     for k in range(nb_simu):
         # Normalisation Z
@@ -164,6 +164,7 @@ def charge_data(hyper_param, param_adim):
     for nb, ya0_ in enumerate(hyper_param["ya0"]):
         print(f"Simu n°{nb}/{len(hyper_param['ya0'])}")
         print(f"Time:{(time.time()-time_start_charge):.3f}")
+        w_0 = w0_norm_full[nb][0].item()
         for time_ in torch.unique(t_norm_full[nb]):
             # les points autour du cylindre dans un rayon de hyper_param['rayon_proche']
             masque = (
@@ -180,7 +181,7 @@ def charge_data(hyper_param, param_adim):
                     y_norm_full[nb][masque][indices],
                     t_norm_full[nb][masque][indices],
                     ya0_norm_full[nb][masque][indices],
-                    w0_norm_full[nb][masque][indices],
+                    torch.ones(hyper_param["nb_points_close_cylinder"]) * w_0,
                 ),
                 dim=1,
             )
@@ -207,7 +208,7 @@ def charge_data(hyper_param, param_adim):
                         y_norm_full[nb][masque][indices],
                         t_norm_full[nb][masque][indices],
                         ya0_norm_full[nb][masque][indices],
-                        w0_norm_full[nb][masque][indices],
+                        torch.ones(hyper_param["nb_points"]) * w_0,
                     ),
                     dim=1,
                 )
