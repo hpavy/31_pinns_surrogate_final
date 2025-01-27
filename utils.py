@@ -76,8 +76,9 @@ def charge_data(hyper_param, param_adim):
             torch.tensor(df_modified["Points:1"].to_numpy(), dtype=torch.float32)
             / param_adim["L"]
         )
-        time_without_modulo = df_modified["Time"].to_numpy() - hyper_param["t_min"]
-        time_with_modulo = hyper_param["t_min"] + time_without_modulo % t_max_plot
+        f_flow = f_numpy[k]
+        time_without_modulo = df_modified["Time"].to_numpy() - hyper_param['t_min']
+        time_with_modulo = hyper_param['t_min'] + time_without_modulo % (1/f_flow)
         t_full.append(
             torch.tensor(time_with_modulo, dtype=torch.float32)
             / (param_adim["L"] / param_adim["V"])
