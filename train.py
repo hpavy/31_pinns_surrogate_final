@@ -58,7 +58,7 @@ def train(
     weight_data = torch.tensor(weight_data_init, dtype=torch.float32, device=device)
     weight_pde = torch.tensor(weight_pde_init, dtype=torch.float32, device=device)
 
-    nb_batch = len(X_pde) // batch_size
+    nb_batches = len(X_pde) // batch_size
     batch_size = torch.tensor(batch_size, device=device, dtype=torch.int64)
 
     Re = torch.tensor(Re, dtype=torch.float32, device=device)
@@ -96,13 +96,11 @@ def train(
         pde_batch = torch.tensor([0.0], device=device)
         border_batch = torch.tensor([0.0], device=device)
         model.train()  # on dit qu'on va entrainer (on a le dropout)
-        for nb_batch, batch in enumerate(
-            torch.tensor([k for k in range(nb_batch)], device=device)
-        ):
+        for nb_batch in range(nb_batches):
             with torch.cuda.stream(stream_pde):
                 # loss du pde
                 X_pde_batch = (
-                    X_pde[batch * batch_size : (batch + 1) * batch_size, :]
+                    X_pde[nb_batch * batch_size: (nb_batch + 1) * batch_size, :]
                     .clone()
                     .requires_grad_(True)
                 )

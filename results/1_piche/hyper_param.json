@@ -1,16 +1,13 @@
 {
     "H": [
-        230.67,
         230.67
     ],
     "ya0": [
-        0.00125,
-        0.00375
+        0.00125
     ],
     "m": 1.57,
     "file": [
-        "data_john_4_case_2.csv",
-        "data_john_5_case_2.csv"
+        "data_john_4_case_2.csv"
     ],
     "nb_epoch": 1000,
     "save_rate": 20,
@@ -39,5 +36,5 @@
     "nb_points_close_cylinder": 50,
     "rayon_close_cylinder": 0.015,
     "nb_points_border": 25,
-    "force_inertie_bool": true
+    "force_inertie_bool": false
 }

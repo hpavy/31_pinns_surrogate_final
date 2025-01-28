@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Le code se lance sur {device}")
 
 
-folder_result_name = "1_piche"  # name of the result folder
+folder_result_name = "3_bigger"  # name of the result folder
 
 
 # On utilise hyper_param_init uniquement si c'est un nouveau modèle
@@ -13,10 +13,10 @@ folder_result_name = "1_piche"  # name of the result folder
 
 hyper_param_init = {
     "H": [
-        230.67,
-        230.67,
         # 230.67,
         # 230.67,
+        # 230.67,
+        230.67,
         # 230.67,
         # 261.39,
         # 261.39,
@@ -25,10 +25,10 @@ hyper_param_init = {
         # 261.39,
     ],  # la rigidité du ressort
     "ya0": [
-        0.00125,
-        0.00375,
+        # 0.00125,
+        # 0.00375,
         # 0.00625,
-        # 0.00875,
+        0.00875,
         # 0.00125,
         # 0.00375,
         # 0.00625,
@@ -36,10 +36,10 @@ hyper_param_init = {
     ],  # la position initiale du ressort
     "m": 1.57,  # la masse du ressort
     "file": [
-        "data_john_4_case_2.csv",
-        "data_john_5_case_2.csv",
+        # "data_john_4_case_2.csv",
+        # "data_john_5_case_2.csv",
         # "data_john_7_case_2.csv",
-        # "data_john_9_case_2.csv",
+        "data_john_9_case_2.csv",
         # "data_john_4_case_1.csv",
         # "data_john_5_case_1.csv",
         # "data_john_7_case_1.csv",
@@ -72,7 +72,7 @@ hyper_param_init = {
     "nb_points_close_cylinder": 50,  # le nombre de points proches du cylindre
     "rayon_close_cylinder": 0.015,
     "nb_points_border": 25,  # le nombrede points sur la condition init
-    "force_inertie_bool": True,
+    "force_inertie_bool": False,
 }
 
 
