@@ -1,17 +1,4 @@
-import torch
-from run import RunSimulation
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Le code se lance sur {device}")
-
-
-folder_result_name = "5_huge"  # name of the result folder
-
-
-# On utilise hyper_param_init uniquement si c'est un nouveau modèle
-
-
-hyper_param_init = {
+{
     "H": [
         230.67,
         230.67,
@@ -87,7 +74,7 @@ hyper_param_init = {
     ],
     "nb_epoch": 1000,
     "save_rate": 20,
-    "dynamic_weights": True,
+    "dynamic_weights": true,
     "lr_weights": 0.1,
     "weight_data": 0.33,
     "weight_pde": 0.33,
@@ -112,12 +99,5 @@ hyper_param_init = {
     "nb_points_close_cylinder": 50,
     "rayon_close_cylinder": 0.015,
     "nb_points_border": 25,
-    "force_inertie_bool": False
+    "force_inertie_bool": false
 }
-
-
-param_adim = {"V": 1.0, "L": 0.025, "rho": 1.2}
-
-simu = RunSimulation(hyper_param_init, folder_result_name, param_adim)
-
-simu.run()
