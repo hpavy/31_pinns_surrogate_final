@@ -102,42 +102,6 @@ def train(
         data_batch = torch.tensor([0.0], device=device)
         pde_batch = torch.tensor([0.0], device=device)
         border_batch = torch.tensor([0.0], device=device)
-
-        # Pour le test :
-        model.eval()
-
-        # loss du pde
-        test_pde = model(X_test_pde)
-        test_pde1, test_pde2, test_pde3 = pde(
-            test_pde,
-            X_test_pde,
-            Re=Re,
-            x_std=x_std,
-            y_std=y_std,
-            u_mean=u_mean,
-            v_mean=v_mean,
-            p_std=p_std,
-            t_std=t_std,
-            t_mean=t_mean,
-            u_std=u_std,
-            v_std=v_std,
-            ya0_mean=ya0_mean,
-            ya0_std=ya0_std,
-            w0_mean=w0_mean,
-            w0_std=w0_std,
-            L_adim=L_adim,
-            V_adim=V_adim,
-            force_inertie_bool=force_inertie_bool,
-        )
-        print(X_test_pde)
-        print(test_pde)
-        with torch.no_grad():
-            loss_test_pde = (
-                torch.mean(test_pde1**2)
-                + torch.mean(test_pde2**2)
-                + torch.mean(test_pde3**2)
-            )
-        print(loss_test_pde)
         model.train()  # on dit qu'on va entrainer (on a le dropout)
         for nb_batch in range(nb_batches):
         # for nb_batch, X_pde_batch in enumerate(dataloader):

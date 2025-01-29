@@ -319,7 +319,7 @@ def charge_data(hyper_param, param_adim):
             dim=1,
         )
         X_pde[
-            k * hyper_param["nb_points_pde"]: (k + 1) * hyper_param["nb_points_pde"]
+            nb * hyper_param["nb_points_pde"]: (nb + 1) * hyper_param["nb_points_pde"]
         ] = X_pde_without_param
     indices = torch.randperm(X_pde.size(0))
     X_pde = X_pde[indices, :].detach()
@@ -339,7 +339,7 @@ def charge_data(hyper_param, param_adim):
         )
 
         X_test_pde[
-            k * hyper_param["n_pde_test"]: (k + 1) * hyper_param["n_pde_test"]
+            nb * hyper_param["n_pde_test"]: (nb + 1) * hyper_param["n_pde_test"]
         ] = X_test_pde_without_param
     indices = torch.randperm(X_test_pde.size(0))
     X_test_pde = X_test_pde[indices, :].detach()
@@ -349,9 +349,6 @@ def charge_data(hyper_param, param_adim):
     )
     X_test_data = X_full[points_coloc_test]
     U_test_data = U_full[points_coloc_test]
-    #########
-    print(X_test_pde)
-    #########
     return (
         X_train,
         U_train,
