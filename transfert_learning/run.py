@@ -26,6 +26,8 @@ class RunSimulation:
         # Creation du dossier de result
         Path(self.folder_result).mkdir(parents=True, exist_ok=True)
         (
+            X_entry,
+            U_entry,
             X_border,
             X_border_test,
             X_pde,
@@ -62,4 +64,8 @@ class RunSimulation:
                 X_border_test=X_border_test,
                 param_adim=self.param_adim,
                 force_inertie_bool=self.hyper_param["force_inertie_bool"],
+                mean_std=self.mean_std,
+                nb_simu=1,
+                X_entry=X_entry,
+                U_entry=U_entry
             )

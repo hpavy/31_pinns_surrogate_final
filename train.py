@@ -114,7 +114,7 @@ def train(
                     .requires_grad_(True)
                 ).to(device)
                 pred_pde = model(X_pde_batch)
-                pred_pde1, pred_pde2, pred_pde3 = pde(
+                pred_pde1, pred_pde2, pred_pde3, res, y_ = pde(
                     pred_pde,
                     X_pde_batch,
                     Re=Re,
@@ -137,7 +137,7 @@ def train(
                 )
                 loss_pde = (
                     torch.mean(pred_pde1**2)
-                    + torch.mean(pred_pde2**2)
+                    + torch.mean(pred_pde2**2) * 0.
                     + torch.mean(pred_pde3**2)
                 )
 
@@ -201,7 +201,7 @@ def train(
 
         # loss du pde
         test_pde = model(X_test_pde)
-        test_pde1, test_pde2, test_pde3 = pde(
+        test_pde1, test_pde2, test_pde3, res, y_ = pde(
             test_pde,
             X_test_pde,
             Re=Re,
@@ -225,7 +225,7 @@ def train(
         with torch.no_grad():
             loss_test_pde = (
                 torch.mean(test_pde1**2)
-                + torch.mean(test_pde2**2)
+                + torch.mean(test_pde2**2) * 0.
                 + torch.mean(test_pde3**2)
             )
             # loss de la data
@@ -262,7 +262,7 @@ def train(
                 weight_data_hat = weight_data + lr_weights * data_batch
                 weight_pde_hat = weight_pde + lr_weights * pde_batch
                 weight_border_hat = weight_border + lr_weights * border_batch
-                sum_weight = weight_data_hat + weight_border_hat + weight_pde_hat
+                sum_weight = weight_data_hat + weight_pde_hat + weight_border_hat 
                 weight_data = weight_data_hat / sum_weight
                 weight_border = weight_border_hat / sum_weight
                 weight_pde = weight_pde_hat / sum_weight
@@ -274,6 +274,7 @@ def train(
             train_loss["data"].append(data_batch.item())
             train_loss["pde"].append(pde_batch.item())
             train_loss["border"].append(border_batch.item())
+            # train_loss["border"].append(-1)
 
         print(f"---------------------\nEpoch {epoch+1}/{nb_it_tot} :")
         print(f"---------------------\nEpoch {epoch+1}/{nb_it_tot} :", file=f)

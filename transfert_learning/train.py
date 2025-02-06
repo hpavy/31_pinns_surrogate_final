@@ -11,16 +11,9 @@ def train(
     nb_epoch,
     train_loss,
     test_loss,
-    weight_data_init,
-    weight_pde_init,
-    weight_border_init,
-    dynamic_weights,
-    lr_weights,
     model,
     loss,
     optimizer,
-    X_train,
-    U_train,
     X_test_pde,
     X_test_data,
     U_test_data,
@@ -31,13 +24,14 @@ def train(
     folder_result,
     save_rate,
     batch_size,
-    scheduler,
     X_border,
     X_border_test,
     mean_std,
     param_adim,
     nb_simu,
     force_inertie_bool,
+    X_entry,
+    U_entry
 ):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     nb_it_tot = nb_epoch + len(train_loss["total"])
@@ -59,23 +53,26 @@ def train(
     # batch_size = torch.tensor(batch_size, device=device, dtype=torch.int64)
 
     Re = torch.tensor(Re, dtype=torch.float32, device=device)
-    ya0_mean = mean_std["ya0_mean"].clone().to(device)
-    ya0_std = mean_std["ya0_std"].clone().to(device)
-    w0_mean = mean_std["w0_mean"].clone().to(device)
-    w0_std = mean_std["w0_std"].clone().to(device)
-    x_std = mean_std["x_std"].clone().to(device)
-    y_std = mean_std["y_std"].clone().to(device)
-    u_mean = mean_std["u_mean"].clone().to(device)
-    v_mean = mean_std["v_mean"].clone().to(device)
-    p_std = mean_std["p_std"].clone().to(device)
-    t_std = mean_std["t_std"].clone().to(device)
-    t_mean = mean_std["t_mean"].clone().to(device)
-    u_std = mean_std["u_std"].clone().to(device)
-    v_std = mean_std["v_std"].clone().to(device)
+    ya0_mean = torch.tensor(mean_std["ya0_mean"]).clone().to(device)
+    ya0_std = torch.tensor(mean_std["ya0_std"]).clone().to(device)
+    w0_mean = torch.tensor(mean_std["w0_mean"]).clone().to(device)
+    w0_std = torch.tensor(mean_std["w0_std"]).clone().to(device)
+    x_std = torch.tensor(mean_std["x_std"]).clone().to(device)
+    y_std = torch.tensor(mean_std["y_std"]).clone().to(device)
+    u_mean = torch.tensor(mean_std["u_mean"]).clone().to(device)
+    v_mean = torch.tensor(mean_std["v_mean"]).clone().to(device)
+    p_std = torch.tensor(mean_std["p_std"]).clone().to(device)
+    t_std = torch.tensor(mean_std["t_std"]).clone().to(device)
+    t_mean = torch.tensor(mean_std["t_mean"]).clone().to(device)
+    u_std = torch.tensor(mean_std["u_std"]).clone().to(device)
+    v_std = torch.tensor(mean_std["v_std"]).clone().to(device)
     L_adim = torch.tensor(param_adim["L"], device=device, dtype=torch.float32)
     V_adim = torch.tensor(param_adim["V"], device=device, dtype=torch.float32)
     X_border = X_border.to(device)
     X_border_test = X_border_test.to(device).detach()
+    X_entry = X_entry.to(device)
+    U_entry = U_entry.to(device)
+
     ########
     X_pde = X_pde.to(device)
     ########
@@ -87,11 +84,12 @@ def train(
     X_test_data = X_test_data.to(device).detach()
     U_test_data = U_test_data.to(device).detach()
     nb_simu = torch.tensor(nb_simu, device=device, dtype=torch.int64)
+    model = model.to(device)
 
     for epoch in range(len(train_loss["total"]), nb_it_tot):
         time_start_batch = time.time()
         total_batch = torch.tensor([0.0], device=device)
-        data_batch = torch.tensor([0.0], device=device)
+        entry_batch = torch.tensor([0.0], device=device)
         pde_batch = torch.tensor([0.0], device=device)
         border_batch = torch.tensor([0.0], device=device)
 
@@ -209,12 +207,24 @@ def train(
                     device=device,
                 ).expand(pred_border.shape[0], 2)
                 loss_border_cylinder = loss(pred_border[:, :2], goal_border)  # (MSE)
-
+                X_entry_batch = (
+                    X_entry[nb_batch * batch_size: (nb_batch + 1) * batch_size, :]
+                    .clone()
+                    .requires_grad_(True)
+                ).to(device)
+                pred_entry = model(X_entry_batch)
+                U_entry_batch = (
+                    U_entry[nb_batch * batch_size: (nb_batch + 1) * batch_size, :]
+                    .clone()
+                    .requires_grad_(True)
+                ).to(device)
+                loss_entry = torch.mean((U_entry_batch[:, 0]-pred_entry[:, 0])**2)
             torch.cuda.synchronize()
 
             loss_totale = (
-                  0.5 * loss_pde
-                + 0.5 * loss_border_cylinder
+                  0.9 * loss_pde
+                + 0.05 * loss_border_cylinder
+                + 0.05 * loss_entry
             )
 
             # Backpropagation
@@ -225,13 +235,14 @@ def train(
                 total_batch += loss_totale.item()
                 pde_batch += loss_pde.item()
                 border_batch += loss_border_cylinder.item()
-
-        
+                entry_batch += loss_entry.item()
+      
         # Weights
         with torch.no_grad():
             total_batch /= nb_batch
             pde_batch /= nb_batch
             border_batch /= nb_batch
+            entry_batch /= nb_batch
             train_loss["total"].append(total_batch.item())
             train_loss["pde"].append(pde_batch.item())
             train_loss["border"].append(border_batch.item())
@@ -239,10 +250,10 @@ def train(
         print(f"---------------------\nEpoch {epoch+1}/{nb_it_tot} :")
         print(f"---------------------\nEpoch {epoch+1}/{nb_it_tot} :", file=f)
         print(
-            f"Train : loss: {train_loss['total'][-1]:.3e}, data: ----, pde: {train_loss['pde'][-1]:.3e}, border: {train_loss['border'][-1]:.3e}"
+            f"Train : loss: {train_loss['total'][-1]:.3e}, entry: {entry_batch.item():.3e}, pde: {train_loss['pde'][-1]:.3e}, border: {train_loss['border'][-1]:.3e}"
         )
         print(
-            f"Train : loss: {train_loss['total'][-1]:.3e}, data: ----, pde: {train_loss['pde'][-1]:.3e}, border: {train_loss['border'][-1]:.3e}",
+            f"Train : loss: {train_loss['total'][-1]:.3e}, entry: {entry_batch.item():.3e}, pde: {train_loss['pde'][-1]:.3e}, border: {train_loss['border'][-1]:.3e}",
             file=f,
         )
 

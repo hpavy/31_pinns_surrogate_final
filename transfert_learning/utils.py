@@ -41,7 +41,7 @@ def charge_data(hyper_param, param_adim, mean_std):
     t_max = hyper_param["t_min"] + hyper_param["nb_period"] * time_tot
     t_max = hyper_param["t_min"] + hyper_param["nb_period"] / f
     for k in range(nb_simu):
-        df = pd.read_csv("data/" + hyper_param["file"][k])
+        df = pd.read_csv("31_pinns_surrogate_final/data/" + hyper_param["file"][k])
         df_modified = df.loc[
             (df["Points:0"] >= hyper_param["x_min"])
             & (df["Points:0"] <= hyper_param["x_max"])
@@ -241,8 +241,17 @@ def charge_data(hyper_param, param_adim, mean_std):
     )
     X_test_data = X_full[points_coloc_test]
     U_test_data = U_full[points_coloc_test]
-    
+
+    ###### On charge la data d'entrée en vitesse   
+    min_max = torch.tensor([0., X_full[:, 1].max()-X_full[:, 1].min(), X_full[:, 2].max()-X_full[:, 2].min(), 0., 0.])
+    min_ = torch.tensor([X_full[:, 0].min(), X_full[:, 1].min(), X_full[:, 2].min(), X_full[:, 3][0], X_full[:, 4][0]])
+    X_entry = torch.rand((hyper_param['nb_points_pde'], 5)) * min_max + min_
+    U_entry = torch.ones((hyper_param['nb_points_pde'], 2))
+    U_entry[:, 0] = (0.9526 - mean_std["u_mean"])/mean_std['u_std']
+    U_entry[:, 1] = (0. - mean_std['v_mean'])/mean_std['v_std']
     return (
+        X_entry,
+        U_entry,
         X_border,
         X_border_test,
         X_pde,

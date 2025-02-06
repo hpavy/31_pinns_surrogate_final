@@ -115,6 +115,13 @@ def charge_data(hyper_param, param_adim):
             / ((param_adim["V"] ** 2) * param_adim["rho"])
         )
         print(f"fichier n°{k} chargé")
+        
+    if nb_simu == 1:
+        w0_std = torch.ones(1)
+        ya0_std = torch.ones(1)
+    else:
+        w0_std = torch.cat([w0 for w0 in w0_full], dim=0).std()
+        ya0_std = torch.cat([ya0 for ya0 in ya0_full], dim=0).std()
 
     # les valeurs pour renormaliser ou dénormaliser
     mean_std = {
@@ -131,9 +138,9 @@ def charge_data(hyper_param, param_adim):
         "v_std": torch.cat([v for v in v_full], dim=0).std(),
         "p_std": torch.cat([p for p in p_full], dim=0).std(),
         "ya0_mean": torch.cat([ya0 for ya0 in ya0_full], dim=0).mean(),
-        "ya0_std": torch.cat([ya0 for ya0 in ya0_full], dim=0).std(),
+        "ya0_std": ya0_std,
         "w0_mean": torch.cat([w0 for w0 in w0_full], dim=0).mean(),
-        "w0_std": torch.cat([w0 for w0 in w0_full], dim=0).std(),
+        "w0_std": w0_std,
     }
 
     X_full = torch.zeros((0, 5))
